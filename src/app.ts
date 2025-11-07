@@ -1,9 +1,23 @@
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import fastify from "fastify";
+import { stdTimeFunctions } from "pino";
 import { buildContainer } from "./container";
 
-const app = fastify();
+const app = fastify({
+  logger: {
+    level: "debug",
+    nestedKey: "payload",
+    messageKey: "message",
+    timestamp: stdTimeFunctions.isoTime,
+    base: null,
+    formatters: {
+      level(label) {
+        return { severity: label.toUpperCase() };
+      },
+    },
+  },
+});
 
 // Initialize DI container
 const container = buildContainer();

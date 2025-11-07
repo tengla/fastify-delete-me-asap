@@ -80,7 +80,10 @@ export class ItemsController {
           age,
           message: "Item created successfully",
         });
-        console.log(`ID: ${id}, Name: ${name}, Age: ${age}`);
+        request.log.info(
+          { id, name, age },
+          `ID: ${id}, Name: ${name}, Age: ${age}`
+        );
         return reply.send(item);
       }
     );
@@ -101,6 +104,7 @@ export class ItemsController {
         const { id } = request.params;
         const item = this.itemRepository.findById(id);
         if (!item) {
+          request.log.warn({ id }, `Item with ID ${id} not found`);
           return reply.status(404).send({ message: "Item not found" });
         }
         return item;
