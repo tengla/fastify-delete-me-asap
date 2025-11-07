@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateItemData, CreateItemErrors, CreateItemResponses } from './types.gen';
+import type { CreateItemData, CreateItemErrors, CreateItemResponses, GetItemsData, GetItemsErrors, GetItemsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -26,5 +26,12 @@ export const createItem = <ThrowOnError extends boolean = false>(options: Option
             'Content-Type': 'application/json',
             ...options.headers
         }
+    });
+};
+
+export const getItems = <ThrowOnError extends boolean = false>(options?: Options<GetItemsData, ThrowOnError>) => {
+    return (options?.client ?? client).get<GetItemsResponses, GetItemsErrors, ThrowOnError>({
+        url: '/',
+        ...options
     });
 };

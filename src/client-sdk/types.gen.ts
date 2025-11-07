@@ -4,8 +4,41 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:3000' | (string & {});
 };
 
+/**
+ * Item
+ *
+ * An item object
+ */
+export type Item = {
+    id: number;
+    name: string;
+    age: number;
+    message: string;
+};
+
+/**
+ * CreateItem
+ *
+ * Payload containing name and age
+ */
+export type CreateItem = {
+    name: string;
+    age: number;
+};
+
+/**
+ * CreateItemParams
+ *
+ * Parameters containing the item ID
+ */
+export type CreateItemParams = {
+    id: number;
+};
+
 export type CreateItemData = {
     /**
+     * CreateItem
+     *
      * Payload containing name and age
      */
     body: {
@@ -26,20 +59,78 @@ export type CreateItemErrors = {
     400: {
         message: string;
     };
+    /**
+     * Unauthorized
+     */
+    401: {
+        message: string;
+    };
+    /**
+     * Internal Server Error
+     */
+    500: {
+        message: string;
+    };
 };
 
 export type CreateItemError = CreateItemErrors[keyof CreateItemErrors];
 
 export type CreateItemResponses = {
     /**
-     * Successful response
+     * Item
+     *
+     * An item object
      */
     200: {
-        message: string;
+        id: number;
         name: string;
         age: number;
-        id: number;
+        message: string;
     };
 };
 
 export type CreateItemResponse = CreateItemResponses[keyof CreateItemResponses];
+
+export type GetItemsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/';
+};
+
+export type GetItemsErrors = {
+    /**
+     * Bad Request
+     */
+    400: {
+        message: string;
+    };
+    /**
+     * Unauthorized
+     */
+    401: {
+        message: string;
+    };
+    /**
+     * Internal Server Error
+     */
+    500: {
+        message: string;
+    };
+};
+
+export type GetItemsError = GetItemsErrors[keyof GetItemsErrors];
+
+export type GetItemsResponses = {
+    /**
+     * Default Response
+     */
+    200: Array<{
+        id: number;
+        name: string;
+        age: number;
+        message: string;
+    }>;
+};
+
+export type GetItemsResponse = GetItemsResponses[keyof GetItemsResponses];

@@ -3,6 +3,7 @@ import app from "./app";
 
 describe("GET /items/:id", () => {
   it("should return 200 and the item data", async () => {
+    await app.ready(); // Ensure app is fully initialized
     const response = await app.inject({
       method: "POST",
       url: "/123",

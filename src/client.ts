@@ -1,5 +1,5 @@
 import { createClient, createConfig } from "./client-sdk/client";
-import { createItem } from "./client-sdk/sdk.gen";
+import { createItem, getItems } from "./client-sdk/sdk.gen";
 
 const client = createClient(
   createConfig({
@@ -8,19 +8,48 @@ const client = createClient(
 );
 
 async function main() {
-  const { data, error } = await createItem({
-    client: client,
-    path: { id: 122 },
-    body: {
-      name: "Test Item",
-      age: 25,
-    },
+  await Promise.all([
+    createItem({
+      client: client,
+      path: { id: 121 },
+      body: {
+        name: "Test Item",
+        age: 25,
+      },
+    }),
+    createItem({
+      client: client,
+      path: { id: 122 },
+      body: {
+        name: "Test Item",
+        age: 25,
+      },
+    }),
+    createItem({
+      client: client,
+      path: { id: 123 },
+      body: {
+        name: "Test Item",
+        age: 25,
+      },
+    }),
+    createItem({
+      client: client,
+      path: { id: 124 },
+      body: {
+        name: "Test Item",
+        age: 25,
+      },
+    }),
+  ]);
+  const { data: getItemsData, error: getItemsError } = await getItems({
+    client,
   });
-  if (error) {
-    console.error("error: %s", error.message);
+  if (getItemsError) {
+    console.error("error: %s", getItemsError.message);
     return;
   }
-  console.log("data: %o", data);
+  console.log("items: %o", getItemsData);
 }
 
 main().catch((err) => {
