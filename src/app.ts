@@ -7,7 +7,7 @@ import { buildContainer } from "./container";
 const app = fastify({
   requestIdHeader: "x-correlation-id",
   logger: {
-    level: "debug",
+    level: process.env.LOG_LEVEL || "info",
     nestedKey: "payload",
     messageKey: "message",
     timestamp: stdTimeFunctions.isoTime,
