@@ -1,3 +1,6 @@
+import type Surreal from "surrealdb";
+import { RecordId } from "surrealdb";
+
 export type Item = {
   id: number;
   name: string;
@@ -6,24 +9,43 @@ export type Item = {
 };
 
 export interface ItemRepository {
-  createItem(item: Item): Item;
-  getItems(): Item[];
-  findById(id: number): Item | undefined;
+  createItem(item: Item): Promise<Item>;
+  getItems(): Promise<Item[]>;
+  findById(id: number): Promise<Item | undefined>;
 }
 
-export class InMemoryItemRepository implements ItemRepository {
-  private items = new Map<number, Item>();
+export class SurrealItemRepository implements ItemRepository {
+  constructor(private readonly surrealClient: Surreal) {}
 
-  createItem(item: Item): Item {
-    this.items.set(item.id, item);
-    return item;
+  async createItem(item: Item): Promise<Item> {
+    const newItems = await this.surrealClient.insert<Item>("item", item);
+    const newItem = newItems[0];
+    return {
+      id: Number(newItem?.id.id),
+      name: newItem!.name,
+      age: newItem!.age,
+      message: newItem!.message,
+    };
   }
 
-  getItems(): Item[] {
-    return [...this.items.values()].sort((a, b) => a.id - b.id);
+  async getItems(): Promise<Item[]> {
+    const result = await this.surrealClient.select<Item>("item");
+    return result.map((item) => ({
+      id: Number(item.id.id),
+      name: item.name,
+      age: item.age,
+      message: item.message,
+    }));
   }
 
-  findById(id: number): Item | undefined {
-    return this.items.get(id);
+  async findById(id: number): Promise<Item | undefined> {
+    const recordId = new RecordId("item", id);
+    const result = await this.surrealClient.select<Item>(recordId);
+    return {
+      id: Number(result.id.id),
+      name: result.name,
+      age: result.age,
+      message: result.message,
+    };
   }
 }

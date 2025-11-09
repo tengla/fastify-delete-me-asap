@@ -5,6 +5,7 @@ import { stdTimeFunctions } from "pino";
 import { buildContainer } from "./container";
 
 const app = fastify({
+  requestIdHeader: "x-correlation-id",
   logger: {
     level: "debug",
     nestedKey: "payload",
@@ -18,9 +19,6 @@ const app = fastify({
     },
   },
 });
-
-// Initialize DI container
-const container = buildContainer();
 
 app.register(swagger, {
   openapi: {
@@ -45,8 +43,10 @@ app.register(swaggerUi, {
 });
 
 // Register routes using DI-injected controller
-app.register((instance) => {
-  const itemsController = container.resolve("itemsController");
+app.register(async (instance) => {
+  // Initialize DI container asynchronously
+  const container = await buildContainer();
+  const itemsController = container.cradle.itemsController;
   itemsController.register(instance);
 });
 

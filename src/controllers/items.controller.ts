@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import Type from "typebox";
 
 import { baseResponseSchema } from "../common/base-response-schema";
-import type { ItemRepository } from "../repositories/item";
+import type { ItemService } from "../services/items.service";
 
 const ItemSchema = Type.Object(
   {
@@ -43,7 +43,7 @@ const ItemParamsSchema = Type.Object(
 );
 
 export class ItemsController {
-  constructor(private readonly itemRepository: ItemRepository) {}
+  constructor(private readonly itemService: ItemService) {}
 
   register(instance: FastifyInstance) {
     // Register schema with Fastify's validator after swagger plugin
@@ -67,24 +67,24 @@ export class ItemsController {
         },
       },
       async (request, reply) => {
-        const { id } = request.params;
-        if (id < 100) {
-          return reply
-            .status(400)
-            .send({ message: "ID must be 100 or greater" });
+        try {
+          const { id } = request.params;
+          const { name, age } = request.body;
+
+          const item = await this.itemService.createItem({ id, name, age });
+
+          request.log.info(
+            { id, name, age },
+            `ID: ${id}, Name: ${name}, Age: ${age}`
+          );
+          return reply.send(item);
+        } catch (error) {
+          // Handle business logic errors from service
+          if (error instanceof Error && error.message.includes("ID must be")) {
+            return reply.status(400).send({ message: error.message });
+          }
+          throw error;
         }
-        const { name, age } = request.body;
-        const item = this.itemRepository.createItem({
-          id,
-          name,
-          age,
-          message: "Item created successfully",
-        });
-        request.log.info(
-          { id, name, age },
-          `ID: ${id}, Name: ${name}, Age: ${age}`
-        );
-        return reply.send(item);
       }
     );
 
@@ -102,7 +102,7 @@ export class ItemsController {
       },
       async (request, reply) => {
         const { id } = request.params;
-        const item = this.itemRepository.findById(id);
+        const item = await this.itemService.getItemById(id);
         if (!item) {
           request.log.warn({ id }, `Item with ID ${id} not found`);
           return reply.status(404).send({ message: "Item not found" });
@@ -122,8 +122,8 @@ export class ItemsController {
           },
         },
       },
-      () => {
-        return this.itemRepository.getItems();
+      async () => {
+        return await this.itemService.getAllItems();
       }
     );
   }
